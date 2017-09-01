@@ -1,3 +1,11 @@
+# Prerequisites
+
+ - Docker 17.06.1 or newer
+
+# Build 
+
+`docker build --pull -t odk/sync-web-ui https://github.com/jbeorse/odk-hamsterball-java`
+
 # odk-hamsterball-java
 Java Spring MVC Boot client for [ODK Hamster](https://github.com/benetech/odk-hamster)
 
