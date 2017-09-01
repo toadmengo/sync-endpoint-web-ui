@@ -4,19 +4,21 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{top_menu_layout}">
+<!--/*@thymesVar id="username" type="java.lang.String"*/-->
+<!--/*@thymesVar id="fullName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="officeId" type="java.lang.String"*/-->
+<!--/*@thymesVar id="roleDescriptions" type="java.util.Map<String, String>"*/-->
 
 <th:block layout:fragment="title">Who Am I?</th:block>
 <body>
 	<section layout:fragment="content">
 		<p th:text="'Username: ' + ${username}"></p>
 		<p th:text="'Full name: ' + ${fullName}"></p>
-		<p th:if="${officeId != null}" th:text="'Office ID: ' + ${officeId}"></p>
+		<p th:if="${officeId != null}" th:text="'Default group: ' + ${officeId}"></p>
 
-		<h2>Roles</h2>
-		<!--/* Why double-underscores? 
-		 http://stackoverflow.com/questions/29755615/how-to-access-a-map-in-thymeleaf-spring-dialect-when-the-key-is-changing */-->
-		<ul th:each="role: ${roles}">
-			<li th:text="${roleDescriptions[__${role}__]}">Role Name</li>
+		<h2>Groups and Roles</h2>
+		<ul th:each="role: ${roleDescriptions}">
+			<li th:text="${role.key}">Role Name</li>
 		</ul>
 	</section>
 </body>

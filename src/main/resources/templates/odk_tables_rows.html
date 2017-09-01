@@ -4,16 +4,20 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{odk_tables_layout}">
-<th:block layout:fragment="title" th:text="'Rows for ' + ${tableId}"></th:block>
+<!--/*@thymesVar id="rowResourceList" type="org.opendatakit.aggregate.odktables.rest.entity.RowResourceList"*/-->
+<!--/*@thymesVar id="tableId" type="java.lang.String"*/-->
+<!--/*@thymesVar id="ascending" type="java.lang.Boolean"*/-->
+<!--/*@thymesVar id="sortColumn" type="java.lang.String"*/-->
+
+<th:block layout:fragment="title" th:text="'Rows for ' + ${tableId}"/>
 <head>
-<link rel="stylesheet" href="/css/modal.css">
+<link rel="stylesheet" th:href="@{/css/modal.css}">
 </head>
 <body>
-
 	<th:block layout:fragment="odktablescontent">
-		<th:block th:include="messaging/dismissable_alert"></th:block>
+		<th:block th:include="messaging/dismissable_alert"/>
 
-		<table class="table"
+		<table class="table table-hover"
 			th:if="${rowResourceList.rows != null and not #lists.isEmpty(rowResourceList.rows)}">
 			<thead>
 				<tr>
@@ -97,19 +101,18 @@
 				</tr>
 			</tbody>
 		</table>
-		<div
-			th:if="${rowResourceList.rows == null or #lists.isEmpty(rowResourceList.rows)}">
-			There are no files.</div>
+		<div th:if="${rowResourceList.rows == null or #lists.isEmpty(rowResourceList.rows)}">
+			There are no files.
+		</div>
 
-		<th:block th:include="rows/delete_row_modal"></th:block>
-		<th:block th:include="rows/row_detail_modal"></th:block>
+		<th:block th:include="rows/delete_row_modal"/>
+		<th:block th:include="rows/row_detail_modal"/>
 
 	</th:block>
 
 	<th:block layout:fragment="odk_tables_bodyend">
-		<th:block th:include="rows/delete_row_script"></th:block>
-		<th:block th:include="rows/row_detail_script"></th:block>
-
+		<th:block th:include="rows/delete_row_script"/>
+		<th:block th:include="rows/row_detail_script"/>
 	</th:block>
 </body>
 </html>

@@ -11,7 +11,7 @@ import org.benetech.client.OdkClient;
 import org.benetech.client.OdkClientFactory;
 import org.benetech.constants.GeneralConsts;
 import org.benetech.util.OdkClientUtils;
-import org.opendatakit.api.users.entity.UserEntity;
+import org.benetech.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,8 +28,12 @@ public class MenuInterceptor extends HandlerInterceptorAdapter {
   private static final Log logger = LogFactory.getLog(MenuInterceptor.class);
 
   @Override
-  public void postHandle(final HttpServletRequest request, final HttpServletResponse response,
-      final Object handler, final ModelAndView modelAndView) throws Exception {
+  public void postHandle(
+          final HttpServletRequest request,
+          final HttpServletResponse response,
+          final Object handler,
+          final ModelAndView modelAndView
+  ) throws Exception {
 
     logger.debug("Applying MenuInterceptor to " + request.getRequestURI());
     if (OdkClientUtils.getRestTemplate() != null && modelAndView != null) {
@@ -38,9 +42,10 @@ public class MenuInterceptor extends HandlerInterceptorAdapter {
         List<String> tableIds = odkClient.getTableIds();
         modelAndView.getModelMap().addAttribute("tableIds", tableIds);
       }
-      UserEntity user = odkClient.getCurrentUser();
-      modelAndView.getModelMap().addAttribute("currentUser", user);
-
+      modelAndView.getModelMap().addAttribute(
+              "currentUser",
+              UserUtils.getPrivilegesInfo(SecurityContextHolder.getContext().getAuthentication())
+      );
     }
   }
 

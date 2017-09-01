@@ -4,7 +4,7 @@ function getRowDetailAjax(tableId, rowId) {
 	return $
 	.ajax({
 		type : 'GET',
-		url : '/tables/' + tableId + '/rows/' + rowId,
+		url : contextPath + '/tables/' + tableId + '/rows/' + rowId,
 		success : function(result) {
 			//console.log(JSON.stringify(result, null, 4));
 			
@@ -23,7 +23,7 @@ function getRowAttachmentsAjax(tableId, rowId) {
 	return $
 	.ajax({
 		type : 'GET',
-		url : '/tables/' + tableId + '/rows/' + rowId + '/attachments',
+		url : contextPath + '/tables/' + tableId + '/rows/' + rowId + '/attachments',
 		success : function(result) {
 			//console.log(JSON.stringify(result, null, 4));
 
@@ -39,7 +39,7 @@ function getRowColumnMapAjax(tableId, rowId) {
 	return $
 	.ajax({
 		type : 'GET',
-		url : '/tables/' + tableId + '/rows/' + rowId + '/map',
+		url : contextPath + '/tables/' + tableId + '/rows/' + rowId + '/map',
 		success : function(result) {
 			//console.log(JSON.stringify(result, null, 4));
 
@@ -55,7 +55,7 @@ function getQuestionsAjax(tableId) {
 	return $
 	.ajax({
 		type : 'GET',
-		url : '/tables/' + tableId + '/questions',
+		url : contextPath + '/tables/' + tableId + '/questions',
 		success : function(result) {
 			//console.log(JSON.stringify(result, null, 4));
 
@@ -67,96 +67,109 @@ function getQuestionsAjax(tableId) {
 	});	
 }
 
-	$('#rowDetailModal').on('show.bs.modal', function(event) {
-		var button = $(event.relatedTarget)
-		var rowId = button.data('rowid')
-		var rowETag = button.data('rowetag')
-		/*<![CDATA[*/
-    	var tableId = "[[${tableId}]]";
-		/*]]>*/
-		
-		<!--/* https://stackoverflow.com/questions/3709597/wait-until-all-jquery-ajax-requests-are-done */-->
-		
-		$.when(
-			getRowDetailAjax(tableId, rowId), 
-			getRowAttachmentsAjax(tableId, rowId),
-			getRowColumnMapAjax(tableId, rowId),
-			getQuestionsAjax(tableId)).done(function(rowDetail, attachments, colMap, questions){
-				console.log("rowDetail");
-				console.log(JSON.stringify(rowDetail, null, 4));
-				console.log("attachments");
-				console.log(JSON.stringify(attachments, null, 4));
-				console.log("colMap");
-				console.log(JSON.stringify(colMap, null, 4));
-				console.log("questions");
-				console.log(JSON.stringify(questions, null, 4));
-			buildDetailDisplay(rowDetail, attachments, colMap,  questions);
-		})
+$('#rowDetailModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var rowId = button.data('rowid');
+    var rowETag = button.data('rowetag');
+    /*<![CDATA[*/
+    var tableId = "[[${tableId}]]";
+    /*]]>*/
 
-	})
+    /* https://stackoverflow.com/questions/3709597/wait-until-all-jquery-ajax-requests-are-done */
 
-	function buildDetailDisplay(rowDetail, attachments, colMap, questions) {
-		
-		$('#rowDetailBody').empty();
+    $
+        .when(
+            getRowDetailAjax(tableId, rowId),
+            getRowAttachmentsAjax(tableId, rowId),
+            getRowColumnMapAjax(tableId, rowId),
+            getQuestionsAjax(tableId)
+        ).done(function (rowDetail, attachments, colMap, questions) {
+            console.log("rowDetail");
+            console.log(rowDetail[0]);
+            console.log("attachments");
+            console.log(attachments[0]);
+            console.log("colMap");
+            console.log(colMap[0]);
+            console.log("questions");
+            console.log(questions[0]);
 
-		var rowDetailData = rowDetail[0];
-		var orderedColumns = rowDetailData.orderedColumns;
-		var questionData = questions[0];
-		var attachmentData = attachments[0];
-		var colMapData = colMap[0];
-		for (var colName in questionData) {
-		    var question = questionData[colName];
-		    var response = colMapData[colName];
-		    if (colName || response) {
-		    if (!response) { response = "[No response]"; }
-		    $('#rowDetailBody').append("<div><strong>" + question.displayText + "</strong></div>");
-		    var id = "detail-" + colName;
-		    if (response in attachmentData) {
-		    	var relativeUrl = attachmentData[response].relativeUrl;
-		    	
-		    	if (attachmentData[response].supportsThumbnail) {
-		    		$('#rowDetailBody').append("<div id='" + id + "'></div>");
-		    		$('#'+id).append(
-		    		"<a href='/attachment" + relativeUrl + "'></a>")
-		    		$('#'+id + " a").append(
-		    		"<img src='/attachment/thumb" + relativeUrl +"' alt='Thumbnail of "+ response +"'></img>");
+            buildDetailDisplay(rowDetail, attachments, colMap, questions);
+        })
 
-		    	} else {
-				    $('#rowDetailBody').append("<div id='" + id + "'></div>");
-				    $('#'+id).append("<a href='/attachment" 
-				    		+ relativeUrl + "'>" + response + "</a>");
-		    	}
-		    }
-		    else {
-		    	$('#rowDetailBody').append("<div id='" + id + "'></div>").append(response);
-		    }
-		    
-			}
-		}
-	    $('#rowDetailBody').append("<hr></hr>");
-	    $('#rowDetailBody').append("<div><strong>Row eTag</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.rowETag + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Row ID</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.id + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Create User</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.createUser + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Last Update User</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.lastUpdateUser + "</div>");
-	    
-	    $('#rowDetailBody').append("<div><strong>Locale</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.locale + "</div>");
+});
+
+function buildDetailDisplay(rowDetail, attachments, colMap, questions) {
+    var rowDetailBody = $('#rowDetailBody');
+    rowDetailBody.empty();
+
+    var rowDetailData = rowDetail[0];
+    var orderedColumns = rowDetailData.orderedColumns;
+    var questionData = questions[0];
+    var attachmentData = attachments[0];
+    var colMapData = colMap[0];
+
+    var hasPrompt = false;
+    for (var colName in questionData) {
+        var question = questionData[colName];
+        var response = colMapData[colName];
+        if (colName || response) {
+            hasPrompt = true;
+
+            if (!response) {
+                response = "[No response]";
+            }
+            rowDetailBody.append("<div><strong>" + question.displayText + "</strong></div>");
+            var id = "detail-" + colName;
+            if (response in attachmentData) {
+                var relativeUrl = attachmentData[response].relativeUrl;
+
+                if (attachmentData[response].supportsThumbnail) {
+                    rowDetailBody.append("<div id='" + id + "'></div>");
+                    $('#' + id).append(
+                        "<a href='/attachment" + relativeUrl + "'></a>");
+                    $('#' + id + " a").append(
+                        "<img src='/attachment/thumb" + relativeUrl + "' alt='Thumbnail of " + response + "'/>");
+
+                } else {
+                    rowDetailBody.append("<div id='" + id + "'></div>");
+                    $('#' + id).append("<a href='/attachment"
+                        + relativeUrl + "'>" + response + "</a>");
+                }
+            }
+            else {
+                rowDetailBody.append("<div id='" + id + "'></div>").append(response);
+            }
+
+        }
+    }
+
+    if (!hasPrompt) {
+        rowDetailBody.append("<div>This form doesn't have a prompt.</div>")
+    }
+
+    rowDetailBody.append("<hr>");
+    rowDetailBody.append("<div><strong>Row eTag</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.rowETag + "</div>");
+    rowDetailBody.append("<div><strong>Row ID</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.id + "</div>");
+    rowDetailBody.append("<div><strong>Create User</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.createUser + "</div>");
+    rowDetailBody.append("<div><strong>Last Update User</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.lastUpdateUser + "</div>");
+
+    rowDetailBody.append("<div><strong>Locale</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.locale + "</div>");
 
 
-	    
-	    $('#rowDetailBody').append("<div><strong>Savepoint Timestamp</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.savepointType + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Savepoint Timestamp</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.savepointTimestamp + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Savepoint Creator</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.savepointCreator + "</div>");
-	    $('#rowDetailBody').append("<div><strong>Self URI</strong></div>");
-	    $('#rowDetailBody').append("<div>" + rowDetailData.selfUri + "</div>");
-	}
 
-;
+    rowDetailBody.append("<div><strong>Savepoint Timestamp</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.savepointType + "</div>");
+    rowDetailBody.append("<div><strong>Savepoint Timestamp</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.savepointTimestamp + "</div>");
+    rowDetailBody.append("<div><strong>Savepoint Creator</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.savepointCreator + "</div>");
+    rowDetailBody.append("<div><strong>Self URI</strong></div>");
+    rowDetailBody.append("<a href=\"" + rowDetailData.selfUri + "\"><div>" + rowDetailData.selfUri + "</div></a>");
+}
+
 </script>

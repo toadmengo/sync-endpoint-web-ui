@@ -5,11 +5,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +15,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.benetech.client.OdkClient;
 import org.benetech.constants.GeneralConsts;
 import org.benetech.security.client.digest.DigestRestTemplateFactory;
-import org.springframework.core.ParameterizedTypeReference;
+import org.opendatakit.aggregate.odktables.rest.entity.PrivilegesInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,25 +27,27 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+@Component
 public class WebServiceDelegatingAuthenticationProvider implements AuthenticationProvider {
 
   private static Log logger = LogFactory.getLog(WebServiceDelegatingAuthenticationProvider.class);
 
+  @Autowired
   Properties webServicesProperties;
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     String odkUrlString = webServicesProperties.getProperty("odk.url");
     String odkRealmName = webServicesProperties.getProperty("odk.realm");
-    Map<String, Object> userDetails = new HashMap<String, Object>();
+    Map<String, Object> userDetails = new HashMap<>();
 
-    URL odkUrl = null;
-    URI odkUri = null;
+    URL odkUrl;
+    URI odkUri;
     if (odkUrlString == null) {
       throw new InternalAuthenticationServiceException(
           "Host address is blank.  Did you configure the web service host?");
@@ -62,15 +63,26 @@ public class WebServiceDelegatingAuthenticationProvider implements Authenticatio
     String username = (String) authentication.getPrincipal();
     String password = authentication.getCredentials().toString();
 
-    RestTemplate restTemplate = DigestRestTemplateFactory.getRestTemplate(odkUri.getHost(),
-        odkUri.getPort(), odkUri.getScheme(), odkRealmName, username, password);
-    String getRolesGrantedUrl = odkUrl.toExternalForm() + OdkClient.ROLES_GRANTED_ENDPOINT;
-    ResponseEntity<List<String>> getResponse = null;
+    RestTemplate restTemplate = DigestRestTemplateFactory.getRestTemplate(
+            odkUri.getHost(),
+            odkUri.getPort(),
+            odkUri.getScheme(),
+            odkRealmName,
+            username,
+            password
+    );
+    String getRolesGrantedUrl = odkUrl.toExternalForm() + OdkClient.TABLE_PRIVILEGES_ENDPOINT;
+    ResponseEntity<PrivilegesInfo> getResponse;
     try {
       logger.info("Logging in with " + getRolesGrantedUrl);
 
-      getResponse = restTemplate.exchange(getRolesGrantedUrl, HttpMethod.GET, null,
-          new ParameterizedTypeReference<List<String>>() {});
+      getResponse = restTemplate.exchange(
+              getRolesGrantedUrl,
+              HttpMethod.GET,
+              null,
+              PrivilegesInfo.class,
+              webServicesProperties.getProperty("odk.app.id")
+      );
     } catch (HttpClientErrorException e) {
       logger.info("Received an exception when getting granted roles");
       logger.info("Received " + e.getRawStatusCode());
@@ -82,24 +94,29 @@ public class WebServiceDelegatingAuthenticationProvider implements Authenticatio
         throw new AuthenticationServiceException(e.getMessage());
       }
     }
-    
+
     userDetails.put(GeneralConsts.ODK_REST_CLIENT, restTemplate);
-    
+    userDetails.put(GeneralConsts.PRIVILEGES_INFO, getResponse.getBody());
+
     // Cached credentials for file upload form / pre-emptive digest authentication
-    UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(username,
-        password);
-    
+    UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(username, password);
+
     userDetails.put(GeneralConsts.PREEMPTIVE_CREDENTIALS, usernamePasswordCredentials);
 
-    
+
 
     if (getResponse.getStatusCode().equals(HttpStatus.OK)) {
-      Set<GrantedAuthority> authorized = new HashSet<GrantedAuthority>();
-      for (String role : getResponse.getBody()) {
-        authorized.add(new SimpleGrantedAuthority((String) role));
-      }
-      UsernamePasswordAuthenticationToken token =
-          new UsernamePasswordAuthenticationToken(username, password, authorized);
+      UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+              username,
+              password,
+              getResponse
+                      .getBody()
+                      .getRoles()
+                      .stream()
+                      .map(SimpleGrantedAuthority::new)
+                      .collect(Collectors.toSet())
+      );
+
       token.setDetails(userDetails);
       return token;
     } else {
@@ -121,14 +138,4 @@ public class WebServiceDelegatingAuthenticationProvider implements Authenticatio
   public boolean supports(Class<?> authentication) {
     return authentication.equals(UsernamePasswordAuthenticationToken.class);
   }
-
-  public Properties getWebServicesProperties() {
-    return webServicesProperties;
-  }
-
-  public void setWebServicesProperties(Properties webServicesProperties) {
-    this.webServicesProperties = webServicesProperties;
-  }
-
-
 }

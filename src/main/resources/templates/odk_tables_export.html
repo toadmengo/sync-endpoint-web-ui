@@ -19,7 +19,7 @@
 					</label> <select class="form-control" id="downloadFormat"
 						name="downloadFormat">
 						<option>Select a download format...</option>
-						<option value="CSV">CSV (Comma Separated Values)</option>
+						<!--<option value="CSV">CSV (Comma Separated Values)</option>-->
 						<option value="JSON">JSON</option>
 					</select>
 				</div>
@@ -37,7 +37,7 @@
 				<div class="form-group">
 		
 						<button class="btn btn-primary" type="button"
-							id="downloadZippedButton">Download Zipped Data</button>
+							id="downloadZippedButton">Download Data</button>
 
 				</div>
 			</form>
@@ -59,7 +59,7 @@
 
 								if (format == 'JSON' || format == 'CSV') {
 
-									var href = "/tables/" + tableId
+									var href = contextPath + "/tables/" + tableId
 											+ "/export/" + format
 											+ "/showDeleted/" + showDeleted;
 									

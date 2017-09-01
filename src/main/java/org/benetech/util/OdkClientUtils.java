@@ -1,15 +1,11 @@
 package org.benetech.util;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.benetech.client.OdkClient;
 import org.benetech.constants.GeneralConsts;
 import org.benetech.security.SecurityUtils;
-import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
@@ -19,35 +15,22 @@ public class OdkClientUtils {
 
   private static Log logger = LogFactory.getLog(OdkClientUtils.class);
 
-  public static RestTemplate getRestTemplate(Authentication authentication) {
-    RestTemplate restTemplate = null;
-    try {
-      Map<String, Object> userDetails = (Map<String, Object>) authentication.getDetails();
+  public static Object getObjFromUserDetail(Authentication authentication, String key) {
+    @SuppressWarnings("unchecked")
+    Map<String, Object> userDetails = (Map<String, Object>) authentication.getDetails();
 
-      if (userDetails == null || userDetails.get(GeneralConsts.ODK_REST_CLIENT) == null) {
-        // TODO: Get reauthenticated. Easy workaround may be to force logout for now.
-        SecurityUtils.logout();
-        throw new PreAuthenticatedCredentialsNotFoundException("Cannot find.  Please logout and log in again.");
+    if (userDetails == null || userDetails.getOrDefault(key, null) == null) {
+      // TODO: Get reauthenticated. Easy workaround may be to force logout for now.
+      SecurityUtils.logout();
+      throw new PreAuthenticatedCredentialsNotFoundException("Cannot find.  Please logout and log in again.");
 
-      } else {
-        restTemplate = (RestTemplate) userDetails.get(GeneralConsts.ODK_REST_CLIENT);
-      }
-    } catch (ClassCastException e) {
-      logger.debug("Unable to get REST template for this user.");
+    } else {
+      return userDetails.get(key);
     }
-    return restTemplate;
   }
 
   public static RestTemplate getRestTemplate() {
-    return getRestTemplate(SecurityContextHolder.getContext().getAuthentication());
+    return (RestTemplate)
+            getObjFromUserDetail(SecurityContextHolder.getContext().getAuthentication(), GeneralConsts.ODK_REST_CLIENT);
   }
-
-  public static Map<String, RegionalOffice> getOfficeMap(List<RegionalOffice> offices) {
-    Map<String, RegionalOffice> result = new HashMap<String, RegionalOffice>();
-    for (RegionalOffice office : offices) {
-      result.put(office.getOfficeId(), office);
-    }
-    return result;
-  }
-
 }

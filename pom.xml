@@ -19,6 +19,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<thymeleaf.version>3.0.6.RELEASE</thymeleaf.version>
+		<org.opendatakit-aggregate-rest-interface-version>2017-06-22</org.opendatakit-aggregate-rest-interface-version>
 
 		<thymeleaf-layout-dialect.version>2.2.1</thymeleaf-layout-dialect.version>
 	</properties>
@@ -41,9 +42,14 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>com.github.Benetech</groupId>
-			<artifactId>odk-tables-api-hamster</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<groupId>com.github.benetech</groupId>
+			<artifactId>odk-hamster-digest-auth-client</artifactId>
+			<version>1.0.2-RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.opendatakit</groupId>
+			<artifactId>aggregate-rest-interface</artifactId>
+			<version>${org.opendatakit-aggregate-rest-interface-version}</version>
 			<exclusions>
 				<!-- Spring boot includes jcl-over-slf4j (conflicts) by default -->
 				<exclusion>
@@ -53,9 +59,14 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.github.benetech</groupId>
-			<artifactId>odk-hamster-digest-auth-client</artifactId>
-			<version>1.0.2-RELEASE</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+			<version>2.8.8</version>
 		</dependency>
 		<!-- Compile -->
 		<dependency>
@@ -111,7 +122,6 @@
 			<version>3.4.0</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 	<build>
 		<plugins>

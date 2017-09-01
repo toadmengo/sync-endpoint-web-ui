@@ -4,83 +4,43 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{top_menu_layout}">
+<!--/*@thymesVar id="users" type="org.opendatakit.aggregate.odktables.rest.entity.UserInfoList"*/-->
+
 <head>
-<link rel="stylesheet" href="/css/modal.css">
+<link rel="stylesheet" th:href="@{/css/modal.css}">
 </head>
 
 <th:block layout:fragment="title">Users and Permissions</th:block>
 <body>
 	<section layout:fragment="content">
-		<th:block th:include="messaging/dismissable_alert"></th:block>
-		<!-- Button trigger modal -->
-		<button type="button" class="btn btn-default" data-toggle="modal"
-			data-target="#addEditUserModal"
-			th:attr="data-fullname='',data-username='',data-officeid='',data-roles='',data-action='add'">Add
-			User</button>
-		<table class="table">
+		<th:block th:include="messaging/dismissable_alert"/>
+		<table class="table table-hover">
 			<thead>
 				<tr>
 					<th>Full Name</th>
 					<th>User ID</th>
-					<th>Office</th>
-					<th:block th:each="role: ${roleDescriptions}">
-						<th th:text="${role.name}" th:attr="title=${role.description}"></th>
-					</th:block>
-					<th>Actions</th>
+					<th>Membership</th>
 				</tr>
 			</thead>
 			<tfoot>
 				<tr>
 					<th>Full Name</th>
 					<th>User ID</th>
-					<th>Office</th>
-					<th:block th:each="role: ${roleDescriptions}">
-						<th th:text="${role.name}" th:attr="title=${role.description}"></th>
-					</th:block>
-					<th>Actions</th>
+					<th>Membership</th>
 				</tr>
 			</tfoot>
 			<tbody th:each="user: ${users}">
 				<tr>
-					<td th:text="${user.fullName}">Fred User</td>
-					<td th:text="${user.username}">fred</td>
-					<td
-						th:text="${offices[user.officeId] != null} ? ${offices[user.officeId].name + ' (' + user.officeId + ')'}">Madison,
-						Wisconsin (madison)</td>
-					<th:block th:each="role: ${roleDescriptions}">
-						<td th:text="${#lists.contains(user.roles, role.role)} ? 'yes'"></td>
-					</th:block>
-					<th><button type="button" class="btn btn-default"
-							data-toggle="modal" data-target="#addEditUserModal"
-							th:attr="data-action='edit',data-fullname=${user.fullName},data-username=${user.username},data-officeid=${user.officeId},data-roles=${user.roles}">Edit</button>
-						<button th:if="${user.username != 'anonymous'}" type="button"
-							class="btn btn-default" data-toggle="modal"
-							data-target="#changePasswordModal"
-							th:attr="data-fullname=${user.fullName},data-username=${user.username}">Change
-							Password</button>
-						<button
-							th:if="${user.username != 'anonymous' and user.username != 'admin' and user.userId != currentUser.userId}"
-							type="button" class="btn btn-danger" data-toggle="modal"
-							data-target="#deleteUserModal"
-							th:attr="data-fullname=${user.fullName},data-username=${user.username}">Delete</button></th>
+					<td th:text="${user.full_name}">Fred User</td>
+					<td th:text="${user.user_id}">fred</td>
+					<td th:utext="${#strings.listJoin(#strings.listEscapeXml(user.roles), '<br>')}">groups</td>
 				</tr>
 			</tbody>
 		</table>
 
-		<th:block th:include="admin_user_grid/add_user_modal"></th:block>
-
-		<th:block th:include="admin_user_grid/change_password_modal"></th:block>
-
-		<th:block th:include="admin_user_grid/delete_user_modal"></th:block>
-
 	</section>
 
 	<th:block layout:fragment="bodyend">
-		<th:block th:include="admin_user_grid/add_user_script"></th:block>
-
-		<th:block th:include="admin_user_grid/change_password_script"></th:block>
-
-		<th:block th:include="admin_user_grid/delete_user_script"></th:block>
 	</th:block>
 </body>
 </html>

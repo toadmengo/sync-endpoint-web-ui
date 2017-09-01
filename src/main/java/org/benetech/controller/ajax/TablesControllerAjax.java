@@ -1,48 +1,33 @@
 package org.benetech.controller.ajax;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.benetech.ajax.AjaxFormResponse;
-import org.benetech.ajax.AjaxFormResponseFactory;
 import org.benetech.ajax.SurveyQuestion;
 import org.benetech.client.OdkClient;
 import org.benetech.client.OdkClientFactory;
 import org.benetech.model.display.OdkTablesFileManifestEntryDisplay;
-import org.benetech.validator.OfficeFormValidator;
-import org.opendatakit.aggregate.odktables.rest.entity.DataKeyValue;
-import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
-import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
-import org.opendatakit.aggregate.odktables.rest.entity.RowResource;
-import org.opendatakit.aggregate.odktables.rest.entity.TableResource;
-import org.opendatakit.api.offices.entity.RegionalOffice;
+import org.benetech.model.formDef.FormDef;
+import org.benetech.model.formDef.Prompt;
+import org.benetech.util.OdkClientUtils;
+import org.opendatakit.aggregate.odktables.rest.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 public class TablesControllerAjax {
@@ -120,14 +105,12 @@ public class TablesControllerAjax {
         break;
       }
     }
+    // assume that formDef exists
     String jsonFormDefinition = odkClient.getFormDefinition(formDefEntry.downloadUrl);
-    Map<String, SurveyQuestion> surveyQuestionMap = new HashMap<String, SurveyQuestion>();
+    Map<String, SurveyQuestion> surveyQuestionMap = new HashMap<>();
     try {
-      JsonNode rootNode = new ObjectMapper().readValue(jsonFormDefinition, JsonNode.class);
+      FormDef rootNode = new ObjectMapper().readValue(jsonFormDefinition, FormDef.class);
       surveyQuestionMap = getSurveyQuestionMap(rootNode);
-      logger.info("jsonFormDefinition:\n" + jsonFormDefinition);
-
-      
     } catch (JsonProcessingException e) {
       logger.error(e);
     } catch (IOException e) {
@@ -135,115 +118,93 @@ public class TablesControllerAjax {
     }
 
     return ResponseEntity.ok(surveyQuestionMap);
-
   }
-  
-  Map<String, SurveyQuestion> getSurveyQuestionMap(JsonNode rootNode)
-  {
-    Map<String, SurveyQuestion> surveyQuestionMap = new HashMap<String, SurveyQuestion>();
-    final JsonNode xlsNode = rootNode.path("xlsx");
-    Iterator<JsonNode> surveyLevelChildren = xlsNode.iterator();
-    while (surveyLevelChildren.hasNext()) {
-      JsonNode surveyLevelChild = surveyLevelChildren.next();
-      Iterator<JsonNode> questionLevelChildren = surveyLevelChild.iterator();
-      while (questionLevelChildren.hasNext()) {
-        JsonNode questionLevelChild = questionLevelChildren.next();
-        List<JsonNode> questionNodes = getQuestionNodes(questionLevelChild);
-        for (final JsonNode questionNode : questionNodes) {
-          SurveyQuestion surveyQuestion = new SurveyQuestion();
-          surveyQuestion.setName(getTextNullSafe(questionNode, "name", "_ERROR_DEFAULT"));
-          surveyQuestion.setDisplayText(getDisplayTextNullSafe(questionNode));
-          surveyQuestion.setType(getTextNullSafe(questionNode, "type", ""));
-          surveyQuestion.setRowNum(getIntNullSafe(questionNode, "_row_num"));
-          surveyQuestionMap.put(surveyQuestion.getName(), surveyQuestion);
-        }
-      }
+
+  @GetMapping(value = "/tables/{tableId}/export/{format}/showDeleted/{showDeleted}")
+  public ResponseEntity<?> getTable(@PathVariable("tableId") String tableId,
+                                    @PathVariable("format") String format,
+                                    @PathVariable("showDeleted") boolean showDeleted) {
+    if (!format.equalsIgnoreCase("JSON") && !format.equalsIgnoreCase("CSV")) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Valid formats are JSON and CSV");
     }
-    return surveyQuestionMap;
-  }
 
-  /**
-   * Search deeply for nodes that are probably questions (with name and display nodes)
-   * 
-   * @param surveyNode
-   * @return
-   */
-  List<JsonNode> getQuestionNodes(JsonNode surveyNode) {
-    List<JsonNode> result = new ArrayList<JsonNode>();
-    List<JsonNode> nodesToVisit = new ArrayList<JsonNode>();
-    nodesToVisit.add(surveyNode);
-    while (!nodesToVisit.isEmpty()) {
-      JsonNode currentNode = nodesToVisit.remove(0);
-      JsonNode nameNode = currentNode.get("name");
-      JsonNode displayTextNode = currentNode.get("display");
-      if (nameNode == null || nameNode.isNull() || displayTextNode == null
-          || displayTextNode.isNull()) {
-        Iterator<JsonNode> children = currentNode.iterator();
-        while (children.hasNext()) {
-          JsonNode child = children.next();
-          nodesToVisit.add(child);
-        }
-      } else {
-        result.add(currentNode);
-      }
+    OdkClient odkClient = odkClientFactory.getOdkClient();
+
+    TableResource tableResource = odkClient.getTableResource(tableId);
+    RowResourceList rowResourceList =
+            odkClient.getRowResourceList(tableId, tableResource.getSchemaETag(), "", false);
+
+    if (!showDeleted) {
+      rowResourceList.setRows(rowResourceList
+              .getRows()
+              .stream()
+              .filter(row -> !row.isDeleted())
+              .collect(Collectors.toCollection(ArrayList::new))
+      );
     }
-    return result;
-  }
 
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=rows.json");
 
-
-  private int getIntNullSafe(JsonNode node, String path) {
-    int result = 0;
-    if (node.findPath(path) != null && !node.findPath(path).isNull()) {
-      result = node.findPath(path).asInt();
+    if (format.equalsIgnoreCase("JSON")) {
+      return new ResponseEntity<>(rowResourceList.getRows(), headers, HttpStatus.OK);
     }
-    return result;
+
+    return ResponseEntity.notFound().build();
   }
 
-  String getTextNullSafe(JsonNode node, String path, String defaultText) {
-    String result = "";
-    if (node.findPath(path) == null || node.findPath(path).isNull()) {
-      result = defaultText;
-    } else {
-      result = node.findPath(path).asText();
+  Map<String, SurveyQuestion> getSurveyQuestionMap(FormDef rootNode) {
+    // TODO: should probably cache this, this is being called by row_detail_script.html for every row
+
+    return rootNode
+            .specification
+            .sections
+            .values()
+            .stream()
+            .flatMap(section -> section.prompts.stream())
+            .filter(this::isQuestionNode)
+            .map(promptNode -> new SurveyQuestion(
+                    promptNode.type,
+                    promptNode.name,
+                    getDisplayTextNullSafe(promptNode),
+                    promptNode._row_num
+            ))
+            .collect(Collectors.toMap(SurveyQuestion::getName, Function.identity()));
+  }
+
+  boolean isQuestionNode(Prompt node) {
+    return node.name != null && node.display != null && node.display.prompt != null;
+  }
+
+  String getDisplayTextNullSafe(Prompt node) {
+    // TODO: this does not handle translation, or any handlebars template
+    // TODO: non-ascii not showing properly on html
+
+    if (node.display == null || node.display.prompt == null) {
+      return "";
     }
-    return result;
-  }
 
-  String getDisplayTextNullSafe(JsonNode node) {
-    String result = "";
-    JsonNode displayNode = node.findPath("display");
-
-    if (displayNode == null || displayNode.isNull()) {
-      result = "";
-    } else {
-      JsonNode textNode = displayNode.get("text");
-      JsonNode imageNode = displayNode.get("image");
-      if (textNode != null && !textNode.isNull()) {
-        JsonNode defaultNode = textNode.get("default");
-        if (defaultNode != null && !defaultNode.isNull()) {
-          result = defaultNode.asText();
-          Iterator<Entry<String, JsonNode>> children = textNode.fields();
-          while (children.hasNext()) {
-            Map.Entry<String, JsonNode> entry = (Map.Entry<String, JsonNode>) children.next();
-            if (!entry.getKey().equalsIgnoreCase("default")) {
-              JsonNode childNode = entry.getValue();
-              if (childNode != null && !childNode.isNull()) {
-                result = result + " / " + childNode.asText();
-              }
-            }
-          }
-        } else {
-          result = textNode.asText();
-        }
-      } else if (imageNode != null && !imageNode.isNull()) {
-        result = imageNode.asText();
-      } else {
-        result = "";
-      }
+    if (node.display.prompt.stringTokenRef != null) {
+      // TODO: this needs string_token substitution
+      return node.display.prompt.stringTokenRef;
     }
-    return result;
+
+    if (!node.display.prompt.text.equals("")) {
+      return node.display.prompt.text;
+    }
+
+    if (!node.display.prompt.audio.equals("")) {
+      return node.display.prompt.audio;
+    }
+
+    if (!node.display.prompt.video.equals("")) {
+      return node.display.prompt.video;
+    }
+
+    if (!node.display.prompt.image.equals("")) {
+      return node.display.prompt.image;
+    }
+
+    return "";
   }
-
-
 }

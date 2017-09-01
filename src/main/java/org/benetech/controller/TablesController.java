@@ -3,6 +3,7 @@ package org.benetech.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,8 +19,6 @@ import org.opendatakit.aggregate.odktables.rest.entity.RowOutcomeList;
 import org.opendatakit.aggregate.odktables.rest.entity.RowResource;
 import org.opendatakit.aggregate.odktables.rest.entity.RowResourceList;
 import org.opendatakit.aggregate.odktables.rest.entity.TableResource;
-import org.opendatakit.api.forms.entity.FormUploadResult;
-import org.opendatakit.api.offices.entity.RegionalOffice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,17 +50,23 @@ public class TablesController {
 
   @RequestMapping("/tables/attachments/{tableId}")
   public String attachments(@PathVariable("tableId") String tableId, Model model) {
-
     OdkClient odkClient = odkClientFactory.getOdkClient();
+
     TableResource tableResource = odkClient.getTableResource(tableId);
-    OdkTablesFileManifest manifest =
-        odkClient.getTableAttachmentManifest(tableId, tableResource.getSchemaETag());
-    List<OdkTablesFileManifestEntryDisplay> manifestDisplayList =
-        new ArrayList<OdkTablesFileManifestEntryDisplay>();
-    for (OdkTablesFileManifestEntry manifestEntry : manifest.getFiles()) {
-      manifestDisplayList.add(new OdkTablesFileManifestEntryDisplay(manifestEntry));
-    }
-    model.addAttribute("manifest", manifestDisplayList);
+    final String schemaETag = tableResource.getSchemaETag();
+
+    List<OdkTablesFileManifestEntryDisplay> mergedManifestDisplay = odkClient
+            .getRowResourceList(tableId, tableResource.getSchemaETag(), "", false)
+            .getRows()
+            .stream()
+            .map(Row::getRowId)
+            .parallel()
+            .map(id -> odkClient.getSingleRowAttachments(tableId, schemaETag, id))
+            .flatMap(manifest -> manifest.getFiles().stream())
+            .map(OdkTablesFileManifestEntryDisplay::new)
+            .collect(Collectors.toList());
+
+    model.addAttribute("manifest", mergedManifestDisplay);
     model.addAttribute("tableId", tableId);
     return "odk_tables_attachments";
   }
@@ -88,16 +93,6 @@ public class TablesController {
         "Row " + rowResource.getRowETag() + " has been deleted.");
     model.addAttribute("css", "info");
     return "odk_tables_rows";
-  }
-
-  @GetMapping("/tables/properties/{tableId}")
-  public String properties(@PathVariable("tableId") String tableId, Model model) {
-    OdkClient odkClient = odkClientFactory.getOdkClient();
-    model.addAttribute("tableId", tableId);
-    List<String> offices = odkClient.getTableOffices(tableId);
-    model.addAttribute("offices", offices);
-
-    return "odk_tables_properties";
   }
   
   @GetMapping("/tables/export/{tableId}")
@@ -139,33 +134,7 @@ public class TablesController {
 
   @GetMapping("/tables/upload")
   public String uploadForm(Model model) {
-    OdkClient odkClient = odkClientFactory.getOdkClient();
-    List<RegionalOffice> offices = odkClient.getOfficeList();
-    model.addAttribute("offices", offices);
+//    OdkClient odkClient = odkClientFactory.getOdkClient();
     return "odk_tables_upload";
   }
-
-  @PostMapping("/tables/upload")
-  public String uploadSubmit(@RequestParam("zipFile") MultipartFile file,
-      @RequestParam("officeId") List<String> offices, Model model) {
-
-    OdkClient odkClient = odkClientFactory.getOdkClient();
-    FormUploadResult result;
-    try {
-      result = odkClient.uploadFile(file, offices);
-      model.addAttribute("result", result);
-      model.addAttribute("msg", "File uploaded.");
-      model.addAttribute("css", "success");
-    } catch (IOException e) {
-      model.addAttribute("msg", "Upload failed.");
-      model.addAttribute("css", "danger");
-
-    }
-    List<RegionalOffice> menuOffices = odkClient.getOfficeList();
-
-    model.addAttribute("offices", menuOffices);
-
-    return "odk_tables_upload";
-  }
-
 }

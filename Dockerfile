@@ -1,24 +1,41 @@
+FROM maven:3 as compiler
+
+#COPY dependencies /hamsterball/dependencies
+#
+#RUN cd /hamsterball/dependencies && \
+#    . ./mvn_local_installs
+#
+#COPY pom.xml /hamsterball/
+#
+#RUN cd /hamsterball && \
+#    mvn dependency:go-offline
+#
+#COPY src /hamsterball/src
+#
+#RUN cd /hamsterball && \
+#    mvn package -Dmaven.test.skip=true && \
+#    mv target/odk-hamsterball-*.jar /odk-hamsterball-client.jar
+
+COPY . /hamsterball
+
+RUN cd /hamsterball/dependencies && \
+    . ./mvn_local_installs && \
+    cd /hamsterball && \
+    mvn package -Dmaven.test.skip=true && \
+    mv target/odk-hamsterball-*.jar /odk-hamsterball-client.jar
+
 FROM openjdk:8-jdk
 
 # Control Java heap and metaspace sizes
 ENV MIN_HEAP 256m
 ENV MAX_HEAP 1024m
 ENV MAX_METASPACE 128m
-
 ENV JAVA_OPTS -server -Xms$MIN_HEAP -Xmx$MAX_HEAP -XX:MaxMetaspaceSize=$MAX_METASPACE -XX:+UseG1GC
 
-# This Dockerfile runs an insecure instance of ODK 2.0 (Hamster) Server on the default Tomcat port
-# It is intended to be installed behind an SSL proxy
+ENV SPRING_CONFIG_LOCATION file:/org.opendatakit.sync-web-ui.application.properties
 
-MAINTAINER Benetech <cadenh@benetech.org>
+COPY --from=compiler /odk-hamsterball-client.jar /odk-hamsterball-client.jar
 
-ENV ODK_URL='http://localhost:8080' 
-    
-VOLUME /tmp
-
-ADD ./target/odk-hamsterball*.jar odk-hamsterball-client.jar
-RUN sh -c 'touch /odk-hamsterball-client.jar'
-    
 ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar /odk-hamsterball-client.jar" ]
-    
-EXPOSE 8090
+
+EXPOSE 8080

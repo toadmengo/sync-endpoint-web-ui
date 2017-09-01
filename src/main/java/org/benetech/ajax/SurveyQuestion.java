@@ -5,7 +5,14 @@ public class SurveyQuestion {
   private String name;
   private String displayText;
   private Integer rowNum;
-  
+
+  public SurveyQuestion(String type, String name, String displayText, Integer rowNum) {
+    this.type = type;
+    this.name = name;
+    this.displayText = displayText;
+    this.rowNum = rowNum;
+  }
+
   public String getType() {
     return type;
   }
@@ -30,7 +37,4 @@ public class SurveyQuestion {
   public void setRowNum(Integer rowNum) {
     this.rowNum = rowNum;
   }
-  
-  
-
 }

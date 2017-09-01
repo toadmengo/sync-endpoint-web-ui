@@ -3,8 +3,10 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	layout:decorate="~{root_layout}">
+<!--/*@thymesVar id="tableIds" type="java.util.List<String>"*/-->
+<!--/*@thymesVar id="currentUser" type="org.opendatakit.aggregate.odktables.rest.entity.PrivilegesInfo"*/-->
 <head>
-<link rel="stylesheet" href="/css/menulayout.css">
+<link rel="stylesheet" th:href="@{/css/menulayout.css}">
 </head>
 
 <body>
@@ -21,18 +23,15 @@
 							class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" href="#"><img id="odk-menu-icon"
-						alt="ODK Client" src="/images/poverty_stoplight_32.png" width="32"
+						alt="ODK Client" th:src="@{/images/poverty_stoplight_32.png}" width="32"
 						height="32"></a>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<!--<li class="active"><a href="#">Home</a></li>-->
 						<li class="dropdown" sec:authorize="hasRole('ROLE_SYNCHRONIZE_TABLES')"><a href="#" class="dropdown-toggle"
 							data-toggle="dropdown" role="button" aria-haspopup="true"
 							aria-expanded="false">Form Tables <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="/tables/upload">Upload New Table</a></li>
-								<li role="separator" class="divider"></li>
 								<li class="dropdown-header">Existing Form Tables</li>
 								<th:block th:each="topTid: ${tableIds}">
 									<li><a th:text="${topTid}"
@@ -47,16 +46,14 @@
 								Site <span class="caret"></span>
 						</a>
 							<ul class="dropdown-menu">
-								<li><a href="/admin/users">Set Users and Roles</a></li>
-								<li><a href="/admin/offices">Manage Offices</a></li>
+								<li><a th:href="@{/admin/users}">Users and Roles</a></li>
 							</ul></li>
 
 						<li class="dropdown"><a href="#" class="dropdown-toggle"
 							data-toggle="dropdown" role="button" aria-haspopup="true"
 							aria-expanded="false">My Account <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="/whoami">Who Am I?</a></li>
-								<li><a href="/password">Change Password</a></li>
+								<li><a th:href="@{/whoami}">Who Am I?</a></li>
 							</ul></li>
 
 					</ul>
@@ -67,12 +64,12 @@
 						</form>
 					</div>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#">Logged in as <span id="currentLoggedInUser"
-								th:text="${currentUser != null} ? ${currentUser.fullName} : 'Someone Mysterious'">Javier Cáceres</span></a></li>
+						<li><a href="#">Logged in as
+						<span id="currentLoggedInUser"
+								th:text="${currentUser != null} ? ${currentUser.full_name} : 'Someone Mysterious'">Javier Cáceres</span></a></li>
 					</ul>
 
 				</div>
-				<!--/.nav-collapse -->
 			</div>
 		</nav>
 		<div class="container" layout:fragment="bodycontainer">

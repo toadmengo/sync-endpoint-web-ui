@@ -8,7 +8,10 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @EnableCaching
 // No database, don't configure a datasource.
-@SpringBootApplication(scanBasePackages = {"org.benetech"}, exclude={DataSourceAutoConfiguration.class,HibernateJpaAutoConfiguration.class})
+@SpringBootApplication(
+        scanBasePackages = {"org.benetech"},
+        exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class }
+)
 public class Application {
 
     public static void main(String[] args) throws Throwable {

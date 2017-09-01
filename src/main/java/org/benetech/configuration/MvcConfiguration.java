@@ -30,7 +30,7 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(menuInterceptor).excludePathPatterns("/","/login","/logout","/error");
+    registry.addInterceptor(menuInterceptor).excludePathPatterns("/", "/login", "/logout", "/error");
   }
   
 }

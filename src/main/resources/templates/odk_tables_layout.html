@@ -4,8 +4,8 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	layout:decorate="~{top_menu_layout}">
 <head>
-<link rel="stylesheet" href="/css/simplesidebar.css">
-<link rel="stylesheet" href="/css/formtables.css">
+<link rel="stylesheet" th:href="@{/css/simplesidebar.css}">
+<link rel="stylesheet" th:href="@{/css/formtables.css}">
 
 </head>
 
@@ -15,7 +15,6 @@
 			<div id="sidebar-wrapper">
 				<ul class="sidebar-nav">
 					<li class="sidebar-brand" th:text="${tableId}">tableId</li>
-					<li><a th:href="@{|/tables/properties/${tableId}|}">Properties</a></li>
 					<li><a th:href="@{|/tables/manifest/${tableId}|}">Manifest</a></li>
 					<li><a th:href="@{|/tables/${tableId}/rows|}">Rows</a></li>
 					<li><a th:href="@{|/tables/attachments/${tableId}|}">Attachments</a></li>
@@ -31,7 +30,7 @@
 					<div class="row">
 						<div class="col-lg-8">
 							<h1 style="float: left">
-								<th:block layout:fragment="title"></th:block>
+								<th:block layout:fragment="title"/>
 							</h1>
 						</div>
 						<div class="col-lg-4">
@@ -50,7 +49,7 @@
 	</th:block>
 
 	<th:block layout:fragment="bodyend">
-	<th:block layout:fragment="odk_tables_bodyend"></th:block>
+	<th:block layout:fragment="odk_tables_bodyend"/>
 
 		<!-- Simple Sidebar Menu Toggle Script -->
 		<script>
