@@ -4,14 +4,16 @@
 
 # Build 
 
-`docker build --pull -t odk/sync-web-ui https://github.com/jbeorse/odk-hamsterball-java`
+`docker build --pull -t odk/sync-web-ui https://github.com/opendatakit/sync-endpoint-web-ui`
 
-# odk-hamsterball-java
-Java Spring MVC Boot client for [ODK Hamster](https://github.com/benetech/odk-hamster)
+# Run
 
-# Get Started
+Use [Run.md](Run.md).
 
-* [Run the Hamsterball web client.](RUN.md)
-* [Run the web client in a Docker container.](DOCKER.md)
-* [Can I run it on Heroku?](https://github.com/benetech/odk-hamster/blob/master/HEROKU.md)
-* [How should I edit it in an IDE?](https://github.com/benetech/odk-hamster/blob/master/ECLIPSE.md)
+Launch a conatiner with the [Docker file](DOCKER.md)
+
+# Acknowledgements
+
+This is a fork of Benetech's [ODK Hamster](https://github.com/benetech/odk-hamsterball-java)
+
+
