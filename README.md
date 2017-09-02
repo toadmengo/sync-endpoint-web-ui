@@ -10,7 +10,7 @@
 
 Use [Run.md](Run.md).
 
-Launch a conatiner with the [Docker file](DOCKER.md)
+Launch a container with the [Docker file](DOCKER.md)
 
 # Acknowledgements
 
