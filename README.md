@@ -8,9 +8,11 @@
 
 # Run
 
-Use [Run.md](Run.md).
+Use [RUN.md](RUN.md).
 
 Launch a container with the [Docker file](DOCKER.md)
+
+See [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) for typical usage.
 
 # Acknowledgements
 
