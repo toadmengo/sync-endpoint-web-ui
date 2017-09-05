@@ -4,7 +4,7 @@
 
 # Build 
 
-`docker build --pull -t odk/sync-web-ui https://github.com/opendatakit/sync-endpoint-web-ui`
+`docker build --pull -t odk/sync-web-ui https://github.com/opendatakit/sync-endpoint-web-ui.git`
 
 # Run
 
