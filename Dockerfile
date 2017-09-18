@@ -24,7 +24,7 @@ RUN cd /hamsterball/dependencies && \
     mvn package -Dmaven.test.skip=true && \
     mv target/odk-hamsterball-*.jar /odk-hamsterball-client.jar
 
-FROM openjdk:8-jdk
+FROM openjdk:8-jre-slim
 
 # Control Java heap and metaspace sizes
 ENV MIN_HEAP 256m
