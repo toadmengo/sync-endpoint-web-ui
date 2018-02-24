@@ -160,14 +160,24 @@ function buildDetailDisplay(rowDetail, attachments, colMap, questions) {
     rowDetailBody.append("<div><strong>Locale</strong></div>");
     rowDetailBody.append("<div>" + rowDetailData.locale + "</div>");
 
-
-
     rowDetailBody.append("<div><strong>Savepoint Timestamp</strong></div>");
     rowDetailBody.append("<div>" + rowDetailData.savepointType + "</div>");
     rowDetailBody.append("<div><strong>Savepoint Timestamp</strong></div>");
     rowDetailBody.append("<div>" + rowDetailData.savepointTimestamp + "</div>");
     rowDetailBody.append("<div><strong>Savepoint Creator</strong></div>");
     rowDetailBody.append("<div>" + rowDetailData.savepointCreator + "</div>");
+
+    rowDetailBody.append("<div><strong>Default Access</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.filterScope.defaultAccess + "</div>");
+    rowDetailBody.append("<div><strong>Group (Modify)</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.filterScope.groupModify + "</div>");
+    rowDetailBody.append("<div><strong>Group (Privileged)</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.filterScope.groupPrivileged + "</div>");
+    rowDetailBody.append("<div><strong>Group (Read Only)</strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.filterScope.groupReadOnly + "</div>");
+    rowDetailBody.append("<div><strong>Owner</strong></strong></div>");
+    rowDetailBody.append("<div>" + rowDetailData.filterScope.rowOwner + "</div>");
+
     rowDetailBody.append("<div><strong>Self URI</strong></div>");
     rowDetailBody.append("<a href=\"" + rowDetailData.selfUri + "\"><div>" + rowDetailData.selfUri + "</div></a>");
 }
