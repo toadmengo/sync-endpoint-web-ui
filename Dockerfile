@@ -1,28 +1,12 @@
 FROM maven:3 as compiler
 
-#COPY dependencies /hamsterball/dependencies
-#
-#RUN cd /hamsterball/dependencies && \
-#    . ./mvn_local_installs
-#
-#COPY pom.xml /hamsterball/
-#
-#RUN cd /hamsterball && \
-#    mvn dependency:go-offline
-#
-#COPY src /hamsterball/src
-#
-#RUN cd /hamsterball && \
-#    mvn package -Dmaven.test.skip=true && \
-#    mv target/odk-hamsterball-*.jar /odk-hamsterball-client.jar
+COPY . /web-ui
 
-COPY . /hamsterball
-
-RUN cd /hamsterball/dependencies && \
+RUN cd /web-ui/dependencies && \
     . ./mvn_local_installs && \
-    cd /hamsterball && \
+    cd /web-ui && \
     mvn package -Dmaven.test.skip=true && \
-    mv target/odk-hamsterball-*.jar /odk-hamsterball-client.jar
+    mv target/sync-endpoint-web-ui-*.jar /sync-endpoint-web-ui.jar
 
 FROM openjdk:8-jre-slim
 
@@ -34,8 +18,8 @@ ENV JAVA_OPTS -server -Xms$MIN_HEAP -Xmx$MAX_HEAP -XX:MaxMetaspaceSize=$MAX_META
 
 ENV SPRING_CONFIG_LOCATION file:/org.opendatakit.sync-web-ui.application.properties
 
-COPY --from=compiler /odk-hamsterball-client.jar /odk-hamsterball-client.jar
+COPY --from=compiler /sync-endpoint-web-ui.jar /sync-endpoint-web-ui.jar
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar /odk-hamsterball-client.jar" ]
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar /sync-endpoint-web-ui.jar" ]
 
 EXPOSE 8080
