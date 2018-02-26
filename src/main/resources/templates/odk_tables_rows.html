@@ -43,8 +43,13 @@
 					<th
 						th:replace="rows/column_heading::colhead ('_savepoint_timestamp','Savepoint Timestamp', ${sortColumn}, ${ascending})"></th>
 					<th
-						th:replace="rows/column_heading::colhead ('_savepoint_creator','Savepoint	Creator', ${sortColumn}, ${ascending})"></th>
+						th:replace="rows/column_heading::colhead ('_savepoint_creator','Savepoint Creator', ${sortColumn}, ${ascending})"></th>
 
+					<th th:replace="rows/column_heading::colhead ('_default_access','Default Access', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_modify','Group (Modify)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_privileged','Group (Privileged)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_read_only','Group (Read Only)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_row_owner','Owner', ${sortColumn}, ${ascending})"></th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -73,6 +78,11 @@
 					<th
 						th:replace="rows/column_heading::colhead ('_savepoint_creator','Savepoint	Creator', ${sortColumn}, ${ascending})"></th>
 
+					<th th:replace="rows/column_heading::colhead ('_default_access','Default Access', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_modify','Group (Modify)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_privileged','Group (Privileged)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_group_read_only','Group (Read Only)', ${sortColumn}, ${ascending})"></th>
+					<th th:replace="rows/column_heading::colhead ('_row_owner','Owner', ${sortColumn}, ${ascending})"></th>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -97,7 +107,11 @@
 					<td th:text="${row.savepointTimestamp}"
 						th:id="'savepointTimestamp-' + ${#strings.substring(row.rowETag,5)}"></td>
 					<td th:text="${row.savepointCreator}"></td>
-
+					<td th:text="${row.rowFilterScope.defaultAccess}"></td>
+					<td th:text="${row.rowFilterScope.groupModify}"></td>
+					<td th:text="${row.rowFilterScope.groupPrivileged}"></td>
+					<td th:text="${row.rowFilterScope.groupReadOnly}"></td>
+					<td th:text="${row.rowFilterScope.rowOwner}"></td>
 				</tr>
 			</tbody>
 		</table>
