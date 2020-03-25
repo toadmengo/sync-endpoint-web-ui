@@ -1,4 +1,4 @@
-FROM maven:3 as compiler
+FROM maven:3-jdk-8 as compiler
 
 COPY . /web-ui
 
