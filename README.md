@@ -18,15 +18,23 @@ Engage with the community and get technical support on [the ODK-X forum](https:/
 
 ## Build 
 
+to build a docker image directly from the remote repository:
+
 `docker build --pull -t odk/sync-web-ui https://github.com/opendatakit/sync-endpoint-web-ui.git`
+
+alternatively, if you've cloned the repository to your local computer, nagivate to the directory containing the DockerFile, and use
+
+`docker build -t odk/sync-web-ui .`
 
 ## Run
 
-Use [RUN.md](RUN.md).
+*Note that the ODK Hamster Service is outdated and may no longer be supported, you are encouraged to set up your local ODK sync-endpoint with [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) (to customize your local setup, please look into ``docker-compose.yml`` inside the ``sync-endpoint-default-setup`` repository for more details).*
 
-Launch a container with the [Docker file](DOCKER.md)
+Option 1: Use [RUN.md](RUN.md).
 
-See [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) for typical usage.
+Option 2: Launch a container with the [Docker file](DOCKER.md)
+
+Option 3: Follow instructions on [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) to set up your local sync-endpoint service.
 
 ## Acknowledgements
 
