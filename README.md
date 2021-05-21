@@ -28,13 +28,17 @@ alternatively, if you've cloned the repository to your local computer, nagivate 
 
 ## Run
 
-*Note that the ODK Hamster Service is outdated and may no longer be supported, you are encouraged to set up your local ODK sync-endpoint with [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) (to customize your local setup, please look into ``docker-compose.yml`` inside the ``sync-endpoint-default-setup`` repository for more details).*
+The Web UI must run in conjunction with ODK sync-endpoint. 
+The fastest way to get sync-endpoint set up is through following the build and run instructions of
+[sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup).
 
-Option 1: Use [RUN.md](RUN.md).
+Once everything is set and ready, in the `sync-endpoint-default-setup` directory, run command
+`docker stack deploy -c docker-compose.yml syncldap` to deploy all services
 
-Option 2: Launch a container with the [Docker file](DOCKER.md)
+To terminate all services and remove the stack, run `docker stack rm syncldap` followed by `docker system prune`.
 
-Option 3: Follow instructions on [sync-endpoint-default-setup](https://github.com/opendatakit/sync-endpoint-default-setup) to set up your local sync-endpoint service.
+*To customize your local setup, please look at ``docker-compose.yml`` inside the ``sync-endpoint-default-setup`` directory for more details.*
+
 
 ## Acknowledgements
 
