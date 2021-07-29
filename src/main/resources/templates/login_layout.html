@@ -4,11 +4,21 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	layout:decorate="~{root_layout}">
 
+<head>
+	<link rel="stylesheet" th:href="@{/css/loginlayout.css}">
+</head>
 
 <body>
 
 	<th:block layout:fragment="topfragment">
-		<div class="container">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container">
+				<a class="navbar-brand" href="#"><img id="odk-menu-icon"
+					alt="ODK Client" th:src="@{/images/ODKX.png}" width="64"
+					height="64"></a>
+			</div>
+		</nav>
+		<div class="container content">
 			<h1>
 				<th:block layout:fragment="title"></th:block>
 			</h1>
