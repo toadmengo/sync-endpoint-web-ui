@@ -1,19 +1,7 @@
-h1 {
-    text-align: center;
-}
-
-.container {
-	background-color: white;
-}
-
-.content {
+#login-content {
     width: 440px;
 }
 
-.navbar-static-top {
-	margin-bottom: 19px;
-}
-
-#odk-menu-icon {
-	margin-top: -18px;
+#login-title {
+	text-align: center;
 }
