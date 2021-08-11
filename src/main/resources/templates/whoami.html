@@ -41,8 +41,6 @@
 					</div>
 				</th:block>
 			</div>
-			<br>
-			<br>
 			<div class="section-container">
 				<div class = "row">
 					<h2 class="row-header">Form tables</h2>
@@ -50,7 +48,7 @@
 				<th:block th:each="topTid: ${tableIds}">
 					<div class = "row">
 						<b><a th:text="${topTid}"
-							th:href="@{|/tables/manifest/${topTid}|}"></a></b>
+							th:href="@{|/tables/${topTid}/rows|}"></a></b>
 					</div>
 				</th:block>
 			</div>

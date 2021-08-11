@@ -45,6 +45,7 @@ public class TablesController {
 
     model.addAttribute("manifest", manifest);
     model.addAttribute("tableId", tableId);
+    model.addAttribute("currentPage", "manifest");
     return "odk_tables_manifest";
   }
 
@@ -68,6 +69,7 @@ public class TablesController {
 
     model.addAttribute("manifest", mergedManifestDisplay);
     model.addAttribute("tableId", tableId);
+    model.addAttribute("currentPage", "attachments");
     return "odk_tables_attachments";
   }
   
@@ -98,6 +100,7 @@ public class TablesController {
   @GetMapping("/tables/export/{tableId}")
   public String exportForm(@PathVariable("tableId") String tableId, Model model) {
     model.addAttribute("tableId", tableId);
+    model.addAttribute("currentPage", "export");
     return "odk_tables_export";
   }
 
@@ -130,6 +133,7 @@ public class TablesController {
     model.addAttribute("tableId", tableId);
     model.addAttribute("ascending", ascending);
     model.addAttribute("sortColumn", sortColumn);
+    model.addAttribute("currentPage", "row");
   }
 
   @GetMapping("/tables/upload")

@@ -13,3 +13,7 @@
 .sortColumnDescending::before {
 	content: "\25BC " /* ▼ */
 }
+
+a {
+	font-size: larger;
+}
