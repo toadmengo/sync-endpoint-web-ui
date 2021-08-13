@@ -82,17 +82,20 @@ public class TablesController {
       Model model) {
     OdkClient odkClient = odkClientFactory.getOdkClient();
     TableResource tableResource = odkClient.getTableResource(tableId);
-    RowResource rowResource = odkClient.getSingleRow(tableId, tableResource.getSchemaETag(), rowId);
     RowList putList = new RowList();
-    Row row =  RowUtils.resourceToRow(rowResource);
-    row.setDeleted(true);
-    putList.getRows().add(row);
+    String[] rowIds = rowId.split(",");
+    for (String id : rowIds) {
+      RowResource rowResource = odkClient.getSingleRow(tableId, tableResource.getSchemaETag(), id);
+      Row row =  RowUtils.resourceToRow(rowResource);
+      row.setDeleted(true);
+      putList.getRows().add(row);
+    }
     putList.setDataETag(tableResource.getDataETag());
     RowOutcomeList rowOutcomeList= odkClient.putRowList(tableId, tableResource.getSchemaETag(), putList);
 
     populateDefaultModel(tableId, sortColumn, ascending, model);
     model.addAttribute("msg",
-        "Row " + rowResource.getRowETag() + " has been deleted.");
+        "Rows have been deleted.");
     model.addAttribute("css", "info");
     return "odk_tables_rows";
   }

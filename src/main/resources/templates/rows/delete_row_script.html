@@ -3,10 +3,7 @@
 			.on(
 					'show.bs.modal',
 					function(event) {
-						var button = $(event.relatedTarget)
-						var rowId = button.data('rowid')
-						var rowETag = button.data('rowetag')
-
+						var allId = "";
 						$('#deleteRowDescription').empty();
 						$('#deleteRowDescription').append(
 								"<table id='confirmDeleteTable'></table>");
@@ -15,24 +12,41 @@
 										"<thead><tr id='confirmDeleteHeader'><th>Row Id</th><th>Create User</th><th>Savepoint Timestamp</th></tr></thead>")
 						$('#confirmDeleteTable')
 								.append(
-										"<tbody><tr id='confirmDeleteBody'></tr></tbody>")
-						$('#confirmDeleteBody').append(
-								"<td>" + rowId + "</td>")
-						$('#confirmDeleteBody').append(
-								"<td>"
-										+ $(
-												"#createUser-"
-														+ rowETag.substring(5))
-												.text() + "</td>")
-						$('#confirmDeleteBody').append(
-								"<td>"
-										+ $(
-												"#savepointTimestamp-"
-														+ rowETag.substring(5))
-												.text() + "</td>")
+										"<tbody id='confirmDeleteBody'></tbody>")
+
+						checkboxes = document.getElementsByName('rowboxes');
+						for (var i=0, n=checkboxes.length; i<n; i++) {
+							if (checkboxes[i].checked) {
+								var checkbox = checkboxes[i]
+								var rowId = checkbox.getAttribute("data-rowid")
+								var rowETag = checkbox.getAttribute("data-rowetag")
+								console.log(rowId)
+								console.log(rowETag)
+								var id = "confirmDeleteRow" + i
+								var row = $("<tr></tr>").attr('id', id)
+								row.append(
+									"<td>" + rowId + "</td>")
+									row.append(
+									"<td>"
+											+ $(
+													"#createUser-"
+															+ rowETag.substring(5))
+													.text() + "</td>")
+								row.append(
+									"<td>"
+											+ $(
+													"#savepointTimestamp-"
+															+ rowETag.substring(5))
+													.text() + "</td>")
+								$("#confirmDeleteBody").append(row)
+
+								allId = allId + "," + rowId;
+							}
+						}
+
 
 						var modal = $(this)
-						modal.find('input#deleteRowId').val(rowId)
+						modal.find('input#deleteRowId').val(allId.substring(1))
 					})
 
 	$('#deleteButton').on('click', function(event) {

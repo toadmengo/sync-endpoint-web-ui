@@ -16,12 +16,24 @@
 <body>
 	<th:block layout:fragment="odktablescontent">
 		<th:block th:include="messaging/dismissable_alert"/>
-
+		
 		<table class="table table-hover"
 			th:if="${rowResourceList.rows != null and not #lists.isEmpty(rowResourceList.rows)}">
 			<thead>
 				<tr>
-					<th>Actions</th>
+					<th colspan="10">
+							<label for="actions">
+								<b>Actions: </b></label>
+							<select id="actions" name="actions" style="height: 30px; width: 150px;">
+								<option selected value> -- select -- </option>
+							  <option value="delete">Delete</option>
+							</select>
+							<input type="button" style="height: 30px;" value = "Go" onclick="goActions()">
+					</th>
+				</tr>
+				<tr>
+					<th><input type="checkbox" id="allboxes" value="all" onClick="toggleBoxes(this)"></th>
+					<th>View</th>
 					<th
 						th:replace="rows/column_heading::colhead ('_row_id','Row Id', ${sortColumn}, ${ascending})"></th>
 					<th
@@ -54,7 +66,8 @@
 			</thead>
 			<tfoot>
 				<tr id="tableHeadingRow">
-					<th>Actions</th>
+					<th></th>
+					<th></th>
 					<th
 						th:replace="rows/column_heading::colhead ('_row_id','Row Id', ${sortColumn}, ${ascending})"></th>
 					<th
@@ -88,13 +101,11 @@
 			<tbody>
 				<tr th:each="row: ${rowResourceList.rows}"
 					th:id="'tableRow-' + ${#strings.substring(row.rowETag,5)}">
+					<td><input type="checkbox" name="rowboxes" onClick="updateAllBox()"
+						th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}" ></td>
 					<td><button type="button" class="btn btn-default"
 							data-toggle="modal" data-target="#rowDetailModal"
-							th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}">View
-							Details</button>
-						<button type="button" class="btn btn-danger" data-toggle="modal"
-							data-target="#deleteRowModal"
-							th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}">Delete</button></td>
+							th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}">View</button>
 					<td th:text="${row.rowId}"></td>
 					<td th:text="${row.createUser}"
 						th:id="'createUser-' + ${#strings.substring(row.rowETag,5)}"></td>
@@ -121,6 +132,47 @@
 
 		<th:block th:include="rows/delete_row_modal"/>
 		<th:block th:include="rows/row_detail_modal"/>
+
+
+		<script language="JavaScript">
+			// script for when go button is clicked, checks if any buttons are checked first
+			function goActions() {
+				checkboxes = document.getElementsByName('rowboxes');
+				var anychecked = false;
+				for (var i=0, n=checkboxes.length; i<n; i++) {
+					if (checkboxes[i].checked) {
+						anychecked=true;
+					}
+				}
+				if (anychecked) {
+					if ($("#actions option:selected").val() === "delete") {;
+						$('#deleteRowModal').modal({show: true});
+					}
+				}
+			}
+
+			// these functions are for the checkbox that checks all of them
+			function toggleBoxes(source) {
+			  checkboxes = document.getElementsByName('rowboxes');
+			  for (var i=0, n=checkboxes.length; i<n; i++) {
+				checkboxes[i].checked = source.checked;
+			  }
+			}
+			function updateAllBox() {
+				checkboxes = document.getElementsByName('rowboxes');
+				var allchecked = true;
+				for (var i=0, n=checkboxes.length; i<n; i++) {
+					if (!checkboxes[i].checked) {
+						allchecked=false;
+					}
+				}
+				if (allchecked) {
+					document.getElementById('allboxes').checked = true;
+				} else {
+					document.getElementById('allboxes').checked = false;
+				}
+			}
+		</script>
 
 	</th:block>
 

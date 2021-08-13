@@ -5,7 +5,7 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="deleteRowModalLabel">Delete Row</h5>
+				<h5 class="modal-title" id="deleteRowModalLabel">Delete Rows</h5>
 				<button type="button" class="close" data-dismiss="modal"
 					aria-label="Close">
 					<span aria-hidden="true">&times;</span>
@@ -14,11 +14,11 @@
 			<div class="modal-body">
 				<form th:action="@{|/tables/${tableId}/rows/delete|}" method="post"
 					id="deleteRowForm">
-					<input type="hidden" name="rowId" id="deleteRowId"></input> <input
-						type="hidden" name="columnName" th:value="${columnName}"></input>
+					<input type="hidden" name="rowId" id="deleteRowId"></input> 
+					<input type="hidden" name="columnName" th:value="${columnName}"></input>
 					<input type="hidden" name="ascending" th:value="${ascending}"></input>
 				</form>
-				<p>Really delete this row?</p>
+				<p>Really delete row(s)?</p>
 				<p id="deleteRowDescription"></p>
 			</div>
 			<div class="modal-footer">

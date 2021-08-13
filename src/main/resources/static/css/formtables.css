@@ -14,6 +14,8 @@
 	content: "\25BC " /* ▼ */
 }
 
-a {
+.tablelink {
 	font-size: larger;
+	position:relative;
+	top: 10px;
 }
