@@ -3,7 +3,7 @@
 			.on(
 					'show.bs.modal',
 					function(event) {
-						var allId = "";
+						var allId = [];
 						$('#deleteRowDescription').empty();
 						$('#deleteRowDescription').append(
 								"<table id='confirmDeleteTable'></table>");
@@ -40,13 +40,13 @@
 													.text() + "</td>")
 								$("#confirmDeleteBody").append(row)
 
-								allId = allId + "," + rowId;
+								allId.push(rowId);
 							}
 						}
-
+						console.log(allId)
 
 						var modal = $(this)
-						modal.find('input#deleteRowId').val(allId.substring(1))
+						modal.find('input#deleteRowId').val(allId)
 					})
 
 	$('#deleteButton').on('click', function(event) {

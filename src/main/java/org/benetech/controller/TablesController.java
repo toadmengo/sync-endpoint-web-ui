@@ -75,7 +75,7 @@ public class TablesController {
   
   @PostMapping("/tables/{tableId}/rows/delete")
   public String deleteRow(@PathVariable("tableId") String tableId,
-      @RequestParam(name = "rowId") String rowId,
+      @RequestParam(name = "rowId") String[] rowId,
       @RequestParam(name = "sortColumn", defaultValue = "_savepoint_timestamp",
           required = false) String sortColumn,
       @RequestParam(name = "ascending", defaultValue = "false", required = false) boolean ascending,
@@ -83,8 +83,7 @@ public class TablesController {
     OdkClient odkClient = odkClientFactory.getOdkClient();
     TableResource tableResource = odkClient.getTableResource(tableId);
     RowList putList = new RowList();
-    String[] rowIds = rowId.split(",");
-    for (String id : rowIds) {
+    for (String id : rowId) {
       RowResource rowResource = odkClient.getSingleRow(tableId, tableResource.getSchemaETag(), id);
       Row row =  RowUtils.resourceToRow(rowResource);
       row.setDeleted(true);
