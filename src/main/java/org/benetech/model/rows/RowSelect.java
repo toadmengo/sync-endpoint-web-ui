@@ -9,7 +9,7 @@ public class RowSelect {
     /**
      * @return Boolean return the selected
      */
-    public Boolean isSelected() {
+    public Boolean getSelected() {
         return selected;
     }
 

@@ -3,7 +3,6 @@
 			.on(
 					'show.bs.modal',
 					function(event) {
-						var allId = [];
 						$('#deleteRowDescription').empty();
 						$('#deleteRowDescription').append(
 								"<table id='confirmDeleteTable'></table>");
@@ -14,14 +13,13 @@
 								.append(
 										"<tbody id='confirmDeleteBody'></tbody>")
 
-						checkboxes = document.getElementsByName('rowboxes');
-						for (var i=0, n=checkboxes.length; i<n; i++) {
-							if (checkboxes[i].checked) {
-								var checkbox = checkboxes[i]
-								var rowId = checkbox.getAttribute("data-rowid")
-								var rowETag = checkbox.getAttribute("data-rowetag")
-								console.log(rowId)
-								console.log(rowETag)
+						tablerow = document.getElementsByClassName('tablerow');
+						for (let i = 0; i < tablerow.length; i++) {
+							var r = tablerow[i]
+							var checkbox = r.getElementsByClassName('rowboxes')[0];
+							if (checkbox.checked) {
+								var rowId = r.getAttribute("data-rowid")
+								var rowETag = r.getAttribute("data-rowetag")
 								var id = "confirmDeleteRow" + i
 								var row = $("<tr></tr>").attr('id', id)
 								row.append(
@@ -40,16 +38,12 @@
 													.text() + "</td>")
 								$("#confirmDeleteBody").append(row)
 
-								allId.push(rowId);
 							}
 						}
-						console.log(allId)
-						// var modal = $(this)
-						// modal.find('input#deleteRowId').val(allId)
+
 					})
 
 	$('#deleteButton').on('click', function(event) {
-		var button = $(event.target); // The clicked button
-		$('#deleteRowForm').submit()
+		$('#tableForm').submit();
 	});
 </script>

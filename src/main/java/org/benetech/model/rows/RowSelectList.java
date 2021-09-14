@@ -9,11 +9,12 @@ public class RowSelectList {
 
     private List<RowSelect> rows;
 
+    public RowSelectList() {
+        rows = new ArrayList<>();
+    }
+
 
     public void addRow(RowSelect row) {
-        if (rows == null) {
-            rows = new ArrayList<>();
-        }
         rows.add(row);
     }
 

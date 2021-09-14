@@ -77,32 +77,6 @@ public class TablesController {
     return "odk_tables_attachments";
   }
   
-  // @PostMapping("/tables/{tableId}/rows/delete")
-  // public String deleteRow(@PathVariable("tableId") String tableId,
-  //     @RequestParam(name = "rowId") String[] rowId,
-  //     @RequestParam(name = "sortColumn", defaultValue = "_savepoint_timestamp",
-  //         required = false) String sortColumn,
-  //     @RequestParam(name = "ascending", defaultValue = "false", required = false) boolean ascending,
-  //     Model model) {
-  //   OdkClient odkClient = odkClientFactory.getOdkClient();
-  //   TableResource tableResource = odkClient.getTableResource(tableId);
-  //   RowList putList = new RowList();
-  //   for (String id : rowId) {
-  //     RowResource rowResource = odkClient.getSingleRow(tableId, tableResource.getSchemaETag(), id);
-  //     Row row =  RowUtils.resourceToRow(rowResource);
-  //     row.setDeleted(true);
-  //     putList.getRows().add(row);
-  //   }
-  //   putList.setDataETag(tableResource.getDataETag());
-  //   RowOutcomeList rowOutcomeList= odkClient.putRowList(tableId, tableResource.getSchemaETag(), putList);
-
-  //   populateDefaultModel(tableId, sortColumn, ascending, model);
-  //   model.addAttribute("msg",
-  //       "Rows have been deleted.");
-  //   model.addAttribute("css", "info");
-  //   return "odk_tables_rows";
-  // }
-  
   @GetMapping("/tables/export/{tableId}")
   public String exportForm(@PathVariable("tableId") String tableId, Model model) {
     model.addAttribute("tableId", tableId);
@@ -124,9 +98,10 @@ public class TablesController {
   }
 
   @PostMapping("/tables/{tableId}/rows/delete")
-  public String deleteRow(@ModelAttribute RowSelectList rowSelectList,
-      BindingResult bindingResult,
+  public String deleteRow(
       @PathVariable("tableId") String tableId,
+      @ModelAttribute RowSelectList rowSelectList,
+      BindingResult bindingResult,
       @RequestParam(name = "sortColumn", defaultValue = "_savepoint_timestamp",
           required = false) String sortColumn,
       @RequestParam(name = "ascending", defaultValue = "false", required = false) boolean ascending,
@@ -137,9 +112,10 @@ public class TablesController {
     if (!bindingResult.hasErrors()) {
       RowList putList = new RowList();
       for (RowSelect rowSelect : rowSelectList.getRows()) {
-        Row row =  rowSelect.getRow();
-        // delete if selected right now
-        row.setDeleted(rowSelect.isSelected());
+        Row r =  rowSelect.getRow();
+        RowResource rowResource = odkClient.getSingleRow(tableId, tableResource.getSchemaETag(), r.getRowId());
+        Row row =  RowUtils.resourceToRow(rowResource);
+        row.setDeleted(rowSelect.getSelected());
         putList.getRows().add(row);
       }
       putList.setDataETag(tableResource.getDataETag());
@@ -147,7 +123,7 @@ public class TablesController {
       model.addAttribute("msg",
       "Rows have been deleted.");
     } else {
-      model.addAttribute("msg", bindingResult.getAllErrors().get(0).toString());
+      model.addAttribute("msg", bindingResult.getAllErrors().toString());
     }
 
     populateDefaultModel(tableId, sortColumn, ascending, model);
