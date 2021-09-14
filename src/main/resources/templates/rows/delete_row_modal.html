@@ -12,9 +12,10 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form th:action="@{|/tables/${tableId}/rows/delete|}" method="post"
-					id="deleteRowForm">
-					<input type="hidden" name="rowId" id="deleteRowId"></input> 
+				<!-- <form th:action="@{|/tables/${tableId}/rows/delete|}" method="post"
+					id="deleteRowForm"> -->
+				<form method="post" id="deleteRowForm">
+					<!-- <input type="hidden" name="rowId" id="deleteRowId"></input>  -->
 					<input type="hidden" name="columnName" th:value="${columnName}"></input>
 					<input type="hidden" name="ascending" th:value="${ascending}"></input>
 				</form>

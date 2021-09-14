@@ -1,4 +1,4 @@
-<script>
+<script th:inline="javascript">
 	$('#deleteRowModal')
 			.on(
 					'show.bs.modal',
@@ -44,9 +44,8 @@
 							}
 						}
 						console.log(allId)
-
-						var modal = $(this)
-						modal.find('input#deleteRowId').val(allId)
+						// var modal = $(this)
+						// modal.find('input#deleteRowId').val(allId)
 					})
 
 	$('#deleteButton').on('click', function(event) {

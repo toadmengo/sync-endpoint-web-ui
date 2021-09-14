@@ -16,9 +16,11 @@
 <body>
 	<th:block layout:fragment="odktablescontent">
 		<th:block th:include="messaging/dismissable_alert"/>
-		
+
+		<form th:action="@{|/tables/${tableId}/rows/delete|}" th:object = '${rowSelectList}' method="post">
+
 		<table class="table table-hover"
-			th:if="${rowResourceList.rows != null and not #lists.isEmpty(rowResourceList.rows)}">
+			th:if="${rowSelectList.rows != null and not #lists.isEmpty(rowSelectList.rows)}">
 			<thead>
 				<tr>
 					<th colspan="10">
@@ -42,7 +44,7 @@
 						th:replace="rows/column_heading::colhead ('_last_update_uri_user','Update User', ${sortColumn}, ${ascending})"></th>
 
 
-					<th:block th:each="col: ${rowResourceList.rows[0].values}">
+					<th:block th:each="col: ${rowSelectList.rows[0].row.values}">
 						<th
 							th:replace="rows/column_heading::colhead (${col.column},${col.column}, ${sortColumn}, ${ascending})"></th>
 
@@ -76,7 +78,7 @@
 						th:replace="rows/column_heading::colhead ('_last_update_uri_user','Update User', ${sortColumn}, ${ascending})"></th>
 
 
-					<th:block th:each="col: ${rowResourceList.rows[0].values}">
+					<th:block th:each="col: ${rowSelectList.rows[0].row.values}">
 						<th
 							th:replace="rows/column_heading::colhead (${col.column},${col.column}, ${sortColumn}, ${ascending})"></th>
 
@@ -99,13 +101,18 @@
 				</tr>
 			</tfoot>
 			<tbody>
-				<tr th:each="row: ${rowResourceList.rows}"
+				<tr th:each="rowSelect, stat: ${rowSelectList.rows}" th:with="row = ${rowSelect.row}"
 					th:id="'tableRow-' + ${#strings.substring(row.rowETag,5)}">
-					<td><input type="checkbox" name="rowboxes" onClick="updateAllBox()"
-						th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}" ></td>
-					<td><button type="button" class="btn btn-default"
+					<td>
+						<input type="checkbox" 
+						th:value="${row.rowID}"
+						th:checked="${row.selected}"
+						th:field="*{rows[__${stat.index}__].selected}"/>
+					</td>
+					
+					 <td><button type="button" class="btn btn-default"
 							data-toggle="modal" data-target="#rowDetailModal"
-							th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}">View</button>
+							th:attr="data-rowid=${row.rowId},data-rowetag=${row.rowETag}">View</button></td>
 					<td th:text="${row.rowId}"></td>
 					<td th:text="${row.createUser}"
 						th:id="'createUser-' + ${#strings.substring(row.rowETag,5)}"></td>
@@ -124,9 +131,15 @@
 					<td th:text="${row.rowFilterScope.groupReadOnly}"></td>
 					<td th:text="${row.rowFilterScope.rowOwner}"></td>
 				</tr>
+				
 			</tbody>
+		
 		</table>
-		<div th:if="${rowResourceList.rows == null or #lists.isEmpty(rowResourceList.rows)}">
+
+		<input type="submit" value="Submit"/>
+		</form>
+
+		<div th:if="${rowSelectList.rows == null or #lists.isEmpty(rowSelectList.rows)}">
 			There are no files.
 		</div>
 
@@ -137,40 +150,31 @@
 		<script language="JavaScript">
 			// script for when go button is clicked, checks if any buttons are checked first
 			function goActions() {
-				checkboxes = document.getElementsByName('rowboxes');
-				var anychecked = false;
-				for (var i=0, n=checkboxes.length; i<n; i++) {
-					if (checkboxes[i].checked) {
-						anychecked=true;
-					}
-				}
-				if (anychecked) {
-					if ($("#actions option:selected").val() === "delete") {;
-						$('#deleteRowModal').modal({show: true});
+				for (checkbox of document.getElementsByName('rowboxes')) {
+					if (checkbox.checked) {
+						if ($("#actions option:selected").val() === "delete") {
+							$('#deleteRowModal').modal({show: true});
+							return
+						}
 					}
 				}
 			}
 
 			// these functions are for the checkbox that checks all of them
 			function toggleBoxes(source) {
-			  checkboxes = document.getElementsByName('rowboxes');
-			  for (var i=0, n=checkboxes.length; i<n; i++) {
-				checkboxes[i].checked = source.checked;
+			  for (checkbox of document.getElementsByName('rowboxes')) {
+				checkbox.checked = source.checked;
 			  }
 			}
+
 			function updateAllBox() {
-				checkboxes = document.getElementsByName('rowboxes');
-				var allchecked = true;
-				for (var i=0, n=checkboxes.length; i<n; i++) {
-					if (!checkboxes[i].checked) {
-						allchecked=false;
+				for (checkbox of document.getElementsByName('rowboxes')) {
+					if (!checkbox.checked) {
+						document.getElementById('allboxes').checked = false;
+						return
 					}
 				}
-				if (allchecked) {
-					document.getElementById('allboxes').checked = true;
-				} else {
-					document.getElementById('allboxes').checked = false;
-				}
+				document.getElementById('allboxes').checked = true;
 			}
 		</script>
 
