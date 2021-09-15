@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RowSelectList {
-    // public String action
 
     private List<RowSelect> rows;
 
