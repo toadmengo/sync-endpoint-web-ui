@@ -17,10 +17,12 @@ import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifest;
 import org.opendatakit.aggregate.odktables.rest.entity.OdkTablesFileManifestEntry;
 import org.opendatakit.aggregate.odktables.rest.entity.Row;
 import org.opendatakit.aggregate.odktables.rest.entity.RowList;
+import org.opendatakit.aggregate.odktables.rest.entity.RowOutcome;
 import org.opendatakit.aggregate.odktables.rest.entity.RowOutcomeList;
 import org.opendatakit.aggregate.odktables.rest.entity.RowResource;
 import org.opendatakit.aggregate.odktables.rest.entity.RowResourceList;
 import org.opendatakit.aggregate.odktables.rest.entity.TableResource;
+import org.opendatakit.aggregate.odktables.rest.entity.RowOutcome.OutcomeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -120,8 +122,12 @@ public class TablesController {
       }
       putList.setDataETag(tableResource.getDataETag());
       RowOutcomeList rowOutcomeList= odkClient.putRowList(tableId, tableResource.getSchemaETag(), putList);
+      int rowsNotDeleted = 0;
+      for (RowOutcome outcome : rowOutcomeList.getRows()) {
+        rowsNotDeleted +=  (outcome.getOutcome() != OutcomeType.SUCCESS ? 1 : 0);
+      }
       model.addAttribute("msg",
-      "Rows have been deleted.");
+      "Rows deleted, failed to delete " + rowsNotDeleted + " rows");
     } else {
       model.addAttribute("msg", bindingResult.getAllErrors().toString());
     }
@@ -157,7 +163,7 @@ public class TablesController {
 
   @GetMapping("/tables/upload")
   public String uploadForm(Model model) {
-//    OdkClient odkClient = odkClientFactory.getOdkClient();
+    OdkClient odkClient = odkClientFactory.getOdkClient();
     return "odk_tables_upload";
   }
 }
