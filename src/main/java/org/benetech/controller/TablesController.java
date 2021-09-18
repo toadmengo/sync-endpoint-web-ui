@@ -148,9 +148,8 @@ public class TablesController {
         odkClient.getRowResourceList(tableId, tableResource.getSchemaETag(), sortColumn, ascending);
     RowSelectList rowSelectList = new RowSelectList();
     for (RowResource rowResource : rowResourceList.getRows()) {
-      Row row =  RowUtils.resourceToRow(rowResource);
       RowSelect rs = new RowSelect();
-      rs.setRow(row);
+      rs.setRow(rowResource);
       rowSelectList.addRow(rs);
     }
     model.addAttribute("tableResource", tableResource);
