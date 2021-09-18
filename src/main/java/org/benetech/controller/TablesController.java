@@ -127,7 +127,7 @@ public class TablesController {
         rowsNotDeleted +=  (outcome.getOutcome() != OutcomeType.SUCCESS ? 1 : 0);
       }
       model.addAttribute("msg",
-      "Rows deleted, failed to delete " + rowsNotDeleted + " rows");
+      "Rows deleted. Issues deleting " + rowsNotDeleted + " rows");
     } else {
       model.addAttribute("msg", bindingResult.getAllErrors().toString());
     }
