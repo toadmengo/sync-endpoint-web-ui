@@ -1,1 +1,1 @@
-mvn install:install-file -Dfile=aggregate-rest-interface-2017-06-22.jar -DgroupId=org.opendatakit -DartifactId=aggregate-rest-interface -Dversion=2017-06-22 -Dpackaging=jar -DupdateReleaseInfo=true
+mvn install:install-file -Dfile=odk-rest-interface-2.1.8.jar -DgroupId=org.opendatakit -DartifactId=odk-rest-interface -Dversion=2.1.8 -Dpackaging=jar -DupdateReleaseInfo=true
